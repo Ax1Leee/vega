@@ -21,19 +21,19 @@ const disabled = computed(() => {
 const fetchData = async () => {
     try {
         count.value = 10;
-        const result = await service.get('/user/reviews', {
+        const response = await service.get('/user/reviews', {
             params: {
                 count: count.value
             }
         });
-        if (result['code'] === 200) {
-            user.value = result.data['user'];
-            reviews.value = result.data['reviews'];
-            total.value = result.data['total'];
+        if (response['code'] === 200) {
+            user.value = response.data['user'];
+            reviews.value = response.data['reviews'];
+            total.value = response.data['total'];
         } else {
             ElNotification({
                 title: "Error",
-                message: result['message'],
+                message: response['message'],
                 type: "error"
             });
         }
@@ -47,19 +47,19 @@ const loadData = async () => {
     try {
         loading.value = true;
         count.value += 10;
-        const result = await service.get('/user/reviews', {
+        const response = await service.get('/user/reviews', {
             params: {
                 count: count.value
             }
         });
-        if (result['code'] === 200) {
-            user.value = result.data['user'];
-            reviews.value = result.data['reviews'];
-            total.value = result.data['total'];
+        if (response['code'] === 200) {
+            user.value = response.data['user'];
+            reviews.value = response.data['reviews'];
+            total.value = response.data['total'];
         } else {
             ElNotification({
                 title: "Error",
-                message: result['message'],
+                message: response['message'],
                 type: "error"
             });
         }
@@ -77,16 +77,17 @@ onMounted(() => {
 </script>
 
 <template>
-    <el-descriptions border direction="vertical" title="User Info" v-loading="fetching">
-        <el-descriptions-item label="Avatar" :rowspan="2" :width="140">
+    <el-descriptions :column="4" direction="vertical" title="User Info" v-loading="fetching">
+        <el-descriptions-item label="Avatar" :rowspan="2" :span="2">
             <el-avatar :size="100" shape="square" :src="user.avatar" />
         </el-descriptions-item>
-        <el-descriptions-item label="Name">{{user.name}}</el-descriptions-item>
-        <el-descriptions-item label="Gender">{{user.gender}}</el-descriptions-item>
-        <el-descriptions-item label="Location">{{user.location}}</el-descriptions-item>
-        <el-descriptions-item label="Email">{{user.email}}</el-descriptions-item>
-        <el-descriptions-item label="Bio">{{user.bio}}</el-descriptions-item>
+        <el-descriptions-item label="Name">{{ user.name }}</el-descriptions-item>
+        <el-descriptions-item label="Gender">{{ user.gender }}</el-descriptions-item>
+        <el-descriptions-item label="Birth Date">{{ user.date }}</el-descriptions-item>
+        <el-descriptions-item label="Location">{{ user.location }}</el-descriptions-item>
+        <el-descriptions-item label="Bio" :span="4">{{ user.bio }}</el-descriptions-item>
     </el-descriptions>
+    <el-divider />
     <ul class="user-reviews" v-infinite-scroll="loadData" :infinite-scroll-disabled="disabled">
         <user-review v-for="reviewId in reviews" :key="reviewId" :review-id="reviewId" />
     </ul>

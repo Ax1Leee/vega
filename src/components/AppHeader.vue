@@ -28,10 +28,10 @@ const signOutDialogVisible = ref(false);
 // Methods
 const fetchData = async () => {
     try {
-        const result = await service.get('/user');
-        if (result['code'] === 200) {
+        const response = await service.get('/user');
+        if (response['code'] === 200) {
             signedIn.value = true;
-            user.value = result.data;
+            user.value = response.data;
         }
     } catch (error) {
         console.log(error);
@@ -53,15 +53,15 @@ function resetForm(formRef) {
 }
 async function submitSignInForm() {
     try {
-        const result = await service.post('/user/signIn', signInFormData);
-        if (result['code'] === 200) {
+        const response = await service.post('/user/signIn', signInFormData);
+        if (response['code'] === 200) {
             signedIn.value = true;
-            user.value = result.data['user'];
-            saveToken(result.data['token']);
+            user.value = response.data['user'];
+            saveToken(response.data['token']);
         } else {
             ElNotification({
                 title: "Error",
-                message: result['message'],
+                message: response['message'],
                 type: "error"
             });
         }
@@ -71,15 +71,15 @@ async function submitSignInForm() {
 }
 async function submitSignUpForm() {
     try {
-        const result = await service.post('/user/signUp', signUpFormData);
-        if (result['code'] === 200) {
+        const response = await service.post('/user/signUp', signUpFormData);
+        if (response['code'] === 200) {
             signedIn.value = true;
-            user.value = result.data['user'];
-            saveToken(result.data['token']);
+            user.value = response.data['user'];
+            saveToken(response.data['token']);
         } else {
             ElNotification({
                 title: "Error",
-                message: result['message'],
+                message: response['message'],
                 type: "error"
             });
         }

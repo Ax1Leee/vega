@@ -20,18 +20,18 @@ const fetching = ref(true);
 // Methods
 const fetchData = async () => {
     try {
-        const result = await service.get('/movie/review', {
+        const response = await service.get('/movie/review', {
             params: {
                 reviewId: props.reviewId
             }
         });
-        if (result['code'] === 200) {
-            user.value = result.data['user'];
-            review.value = result.data['review'];
+        if (response['code'] === 200) {
+            user.value = response.data['user'];
+            review.value = response.data['review'];
         } else {
             ElNotification({
                 title: "Error",
-                message: result['message'],
+                message: response['message'],
                 type: "error"
             });
         }
@@ -55,7 +55,8 @@ onMounted(() => {
             {{ user.nickname }}
         </template>
         <el-row>
-            <el-rate v-model="review.rating" :max="10" disabled/> {{ review.date }}
+            <el-rate v-model="review.rating" :max="10" disabled/>
+            {{ review.date }}
         </el-row>
         <el-row>
             {{ review.content }}

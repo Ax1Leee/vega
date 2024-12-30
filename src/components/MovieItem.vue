@@ -19,17 +19,17 @@ const fetching = ref(true);
 // Methods
 const fetchData = async () => {
     try {
-        const result = await service.get('/movie/item', {
+        const response = await service.get('/movie/item', {
             params: {
                 movieId: props.movieId
             }
         });
-        if (result['code'] === 200) {
-            movie.value = result.data['movie'];
+        if (response['code'] === 200) {
+            movie.value = response.data['movie'];
         } else {
             ElNotification({
                 title: "Error",
-                message: result['message'],
+                message: response['message'],
                 type: "error"
             });
         }
