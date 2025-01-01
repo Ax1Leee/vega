@@ -5,29 +5,31 @@ import {ElNotification} from "element-plus";
 
 // Props
 const props = defineProps({
-    reviewId: {
-        type: Number,
-        required: true,
-        default: 0,
+    genre: {
+        type: String,
+        required: true
+    },
+    category: {
+        type: String,
+        required: true
     }
-})
+});
 
 // Data
-const user = ref(null);
-const review = ref(null);
+const movies = ref(null);
 const fetching = ref(true);
 
 // Methods
 const fetchData = async () => {
     try {
-        const response = await service.get('/movie/review', {
+        const response = await service.get('/movie/list/titles', {
             params: {
-                reviewId: props.reviewId
+                genre: props.genre,
+                category: props.category
             }
         });
         if (response['code'] === 200) {
-            user.value = response.data['user'];
-            review.value = response.data['review'];
+            movies.value = response.data['movies'];
         } else {
             ElNotification({
                 title: "Error",
@@ -49,14 +51,14 @@ onMounted(() => {
 </script>
 
 <template>
-    <el-card id="movie-review" style="max-width: 400px;">
+    <el-card id="movie-list" style="max-width: 400px;" shadow="hover">
         <template #header>
-            {{ user.name }}
+            <p>{{ genre }}</p>
+            <p>{{ category }}</p>
         </template>
-        <p>
-            <el-rate v-model="review.rating" :max="10" disabled/> {{ review.date }}
+        <p v-for="(title, index) in movies" :key="index">
+            {{ index + 1 }} {{ title }}
         </p>
-        <p>{{ review.content }}</p>
     </el-card>
 </template>
 

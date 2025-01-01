@@ -12,13 +12,13 @@ const user = ref(null);
 const fetching = ref(true);
 const signInFormData = reactive({
     username: "",
-    password: "",
+    password: ""
 });
 const signInFormRef = ref(null);
 const signUpFormData = reactive({
     username: "",
     password: "",
-    checkPassword: "",
+    checkPassword: ""
 });
 const signUpFormRef = ref(null);
 const signInDialogVisible = ref(false);
@@ -48,10 +48,7 @@ function handleCommand(command) {
             signOutDialogVisible.value = true;
     }
 }
-function resetForm(formRef) {
-    formRef.value.resetFields();
-}
-async function submitSignInForm() {
+const submitSignInForm = async () => {
     try {
         const response = await service.post('/user/signIn', signInFormData);
         if (response['code'] === 200) {
@@ -69,7 +66,7 @@ async function submitSignInForm() {
         console.log(error);
     }
 }
-async function submitSignUpForm() {
+const submitSignUpForm = async () => {
     try {
         const response = await service.post('/user/signUp', signUpFormData);
         if (response['code'] === 200) {
@@ -87,6 +84,9 @@ async function submitSignUpForm() {
         console.log(error);
     }
 }
+function resetForm(formRef) {
+    formRef.value.resetFields();
+}
 function signOut() {
     signedIn.value = false;
     user.value = null;
@@ -103,25 +103,22 @@ onMounted(() => {
 
 <template>
     <div id="app-header">
-        <el-row>
-            <el-col :span="6" :offset="0">
+        <el-row justify="space-between">
+            <el-col :span="4">
                 <el-link type="primary" :underline="false" href="/" />
             </el-col>
-            <el-col :span="6" :offset="3">
+            <el-col :span="4">
                 <el-input v-model="key" @keyup.enter="handleSearch">
                     <template #prefix>
                         <el-icon><Search /></el-icon>
                     </template>
                 </el-input>
             </el-col>
-            <el-col :span="6" :offset="3">
+            <el-col :span="4">
                 <div class="logged-in" v-if="signedIn">
-                    <el-avatar :size="20" shape="square" :src="user.avatar" />
+                    <el-avatar :src="user.avatar" shape="square" />
                     <el-dropdown trigger="click" @command="handleCommand">
-                        <span class="user-nickname">
-                            {{ user.nickname }}
-                            <el-icon><arrow-down /></el-icon>
-                        </span>
+                        {{ user.nickname }}<el-icon><arrow-down /></el-icon>
                         <template #dropdown>
                             <el-dropdown-menu>
                                 <el-dropdown-item command="close" icon="Close">注销</el-dropdown-item>
@@ -136,42 +133,42 @@ onMounted(() => {
                 </div>
             </el-col>
         </el-row>
-        <el-dialog v-model="signInDialogVisible">
+        <el-dialog v-model="signInDialogVisible" title="Sign In" center>
             <el-form :model="signInFormData" label-width="auto" ref="signInFormRef">
                 <el-form-item label="Username">
                     <el-input v-model="signInFormData.username" />
                 </el-form-item>
-                <el-form-item label="密码">
+                <el-form-item label="Password">
                     <el-input type="password" v-model="signInFormData.password" show-password />
                 </el-form-item>
-                <el-form-item>
-                    <el-button @click="resetForm(signInFormRef)">重置</el-button>
-                    <el-button type="primary" @click="submitSignInForm">登录</el-button>
-                </el-form-item>
             </el-form>
+            <template #footer>
+                <el-button @click="resetForm(signInFormRef)">Reset</el-button>
+                <el-button type="primary" @click="submitSignInForm">Sign In</el-button>
+            </template>
         </el-dialog>
-        <el-dialog v-model="signUpDialogVisible">
+        <el-dialog v-model="signUpDialogVisible" title="Sign Up" center>
             <el-form :model="signUpFormData" label-width="auto" ref="signUpFormRef">
                 <el-form-item label="Username">
                     <el-input v-model="signUpFormData.username" />
                 </el-form-item>
-                <el-form-item label="密码">
+                <el-form-item label="Password">
                     <el-input type="password" v-model="signUpFormData.password" show-password />
                 </el-form-item>
-                <el-form-item label="确认密码">
+                <el-form-item label="Check Password">
                     <el-input type="password" v-model="signUpFormData.checkPassword" show-password />
                 </el-form-item>
-                <el-form-item>
-                    <el-button @click="resetForm(signUpFormRef)">重置</el-button>
-                    <el-button type="primary" @click="submitSignUpForm">注册</el-button>
-                </el-form-item>
             </el-form>
-        </el-dialog>
-        <el-dialog v-model="signOutDialogVisible">
-            <span>是否确定注销？</span>
             <template #footer>
-                <el-button @click="signOutDialogVisible = false">取消</el-button>
-                <el-button type="primary" @click="signOut">确定</el-button>
+                <el-button @click="resetForm(signUpFormRef)">Reset</el-button>
+                <el-button type="primary" @click="submitSignUpForm">Sign Up</el-button>
+            </template>
+        </el-dialog>
+        <el-dialog v-model="signOutDialogVisible" title="Sign Out">
+            <span>Are you sure to sign out?</span>
+            <template #footer>
+                <el-button @click="signOutDialogVisible = false">Cancel</el-button>
+                <el-button type="primary" @click="signOut">Confirm</el-button>
             </template>
         </el-dialog>
     </div>

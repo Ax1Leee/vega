@@ -1,5 +1,5 @@
 <script setup>
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, reactive, ref} from "vue";
 import service from "@/api/axios";
 import {ElNotification} from "element-plus";
 import MovieReview from "@/components/MovieReview.vue";
@@ -13,8 +13,15 @@ const movie = ref(null);
 const reviews = ref(null);
 const total = ref(null);
 const fetching = ref(true);
-const count = ref(0);
+const count = ref(10);
 const loading = ref(false);
+const review = ref(null);
+const reviewFormData = reactive({
+    rating: 0,
+    content: ""
+});
+const reviewFormRef = ref(null);
+const reviewDialogVisible = ref(false);
 
 // Computed
 const disabled = computed(() => {
@@ -22,9 +29,8 @@ const disabled = computed(() => {
 });
 
 // Methods
-const fetchData = async () => {
+const fetchMovieData = async () => {
     try {
-        count.value = 10;
         const response = await service.get('/movie/reviews', {
             params: {
                 movieId: route.params.movieId,
@@ -48,7 +54,23 @@ const fetchData = async () => {
         fetching.value = false;
     }
 };
-const loadData = async () => {
+const fetchReviewData = async () => {
+    try {
+        const response = await service.get('/movie/review', {
+            params: {
+                movieId: route.params.movieId
+            }
+        });
+        if (response['code'] === 200) {
+            review.value = response.data['review'];
+            reviewFormData.rating = review.value.rating;
+            reviewFormData.content = review.value.content;
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+const loadReviews = async () => {
     try {
         loading.value = true;
         count.value += 10;
@@ -75,39 +97,88 @@ const loadData = async () => {
         loading.value = false;
     }
 }
+const submitReviewForm = async () => {
+    try {
+        const response = await service.post('/user/review', reviewFormData);
+        if (response['code'] === 200) {
+            review.value = response.data['review'];
+        } else {
+            ElNotification({
+                title: "Error",
+                message: response['message'],
+                type: "error"
+            });
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+function resetReviewForm() {
+    // TODO
+}
 
 // Mounted
 onMounted(() => {
-    fetchData();
+    fetchMovieData();
+    fetchReviewData();
 });
 </script>
 
 <template>
-    <el-descriptions :column="4" direction="vertical" title="Movie Info" v-loading="fetching">
-        <el-descriptions-item label="Cover" :rowspan="4" :span="2">
-            <el-avatar :size="100" shape="square" :src="movie.cover" />
-        </el-descriptions-item>
-        <el-descriptions-item label="Title">{{ movie.title }}</el-descriptions-item>
-        <el-descriptions-item label="Genres">
-            <el-tag v-for="(genre, index) in movie.genres" :key="index" type="primary" >{{ genre }}</el-tag>
-        </el-descriptions-item>
-        <el-descriptions-item label="Release Date">{{ movie.date }}</el-descriptions-item>
-        <el-descriptions-item label="Country/Countries of Origin">{{ movie.location }}</el-descriptions-item>
-        <el-descriptions-item label="Director">{{ movie.director}}</el-descriptions-item>
-        <el-descriptions-item label="Stars">{{ movie.stars}}</el-descriptions-item>
-        <el-descriptions-item label="Runtime">{{ movie.runtime }}</el-descriptions-item>
-        <el-descriptions-item label="Language/Languages">{{ movie.language }}</el-descriptions-item>
-        <el-descriptions-item label="Storyline" :span="4">{{ movie.storyline }}</el-descriptions-item>
-        <el-descriptions-item label="Rating" :span="4">
-            <el-statistic class="movie-critic-rating" :value="movie.criticRating" suffix="/10" title="Critic Rating" />
-            <el-statistic class="movie-user-rating" :value="movie.userRating" suffix="/10" title="User Rating" />
-        </el-descriptions-item>
-    </el-descriptions>
-    <el-divider />
-    <ul class="user-reviews" v-infinite-scroll="loadData" :infinite-scroll-disabled="disabled">
-        <movie-review v-for="reviewId in reviews" :key="reviewId" :review-id="reviewId" />
-    </ul>
-    <p v-if="loading">Loading...</p>
+    <div id="movie-view">
+        <el-descriptions :column="4" direction="vertical" title="Movie Info" v-loading="fetching">
+            <el-descriptions-item label="Cover" :rowspan="4" :span="2">
+                <el-image :src="movie.cover" fit="cover" />
+            </el-descriptions-item>
+            <el-descriptions-item label="Title">{{ movie.title }}</el-descriptions-item>
+            <el-descriptions-item label="Genres">
+                <el-tag v-for="(genre, index) in movie.genres" :key="index" type="primary" >{{ genre }}</el-tag>
+            </el-descriptions-item>
+            <el-descriptions-item label="Release Date">{{ movie.date }}</el-descriptions-item>
+            <el-descriptions-item label="Country/Countries of Origin">{{ movie.location }}</el-descriptions-item>
+            <el-descriptions-item label="Director">{{ movie.director}}</el-descriptions-item>
+            <el-descriptions-item label="Stars">{{ movie.stars}}</el-descriptions-item>
+            <el-descriptions-item label="Runtime">{{ movie.runtime }}</el-descriptions-item>
+            <el-descriptions-item label="Language/Languages">{{ movie.language }}</el-descriptions-item>
+            <el-descriptions-item label="Storyline" :span="4">{{ movie.storyline }}</el-descriptions-item>
+            <el-descriptions-item label="Rating" :span="4">
+                <el-row justify="space-around">
+                    <el-col :span="6">
+                        Critic Rating
+                        <el-statistic :value="movie.criticRating" suffix="/10" />
+                    </el-col>
+                    <el-col :span="6">
+                        User Rating
+                        <el-statistic :value="movie.userRating" suffix="/10" />
+                    </el-col>
+                    <el-col :span="6">
+                        Your Review
+                        <el-empty v-if="review === null" description="Sign In" />
+                        <el-button v-else type="primary" @click="reviewDialogVisible = true">View Your Review</el-button>
+                    </el-col>
+                </el-row>
+            </el-descriptions-item>
+        </el-descriptions>
+        <el-divider />
+        <ul v-infinite-scroll="loadReviews" :infinite-scroll-disabled="disabled">
+            <movie-review v-for="reviewId in reviews" :key="reviewId" :review-id="reviewId" />
+        </ul>
+        <p v-if="loading">Loading...</p>
+        <el-dialog v-model="reviewDialogVisible" title="Your Review" center>
+            <el-form :model="reviewFormData" label-width="auto" ref="reviewFormRef">
+                <el-form-item label="Rating">
+                    <el-rate v-model="reviewFormData.rating" />
+                </el-form-item>
+                <el-form-item label="Content">
+                    <el-input v-model="reviewFormData.content" type="textarea" rows="4" maxlength="200" show-word-limit />
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <el-button @click="resetReviewForm">Reset</el-button>
+                <el-button type="primary" @click="submitReviewForm">Review</el-button>
+            </template>
+        </el-dialog>
+    </div>
 </template>
 
 <style scoped>

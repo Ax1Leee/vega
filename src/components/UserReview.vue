@@ -49,7 +49,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <el-card id="user-review" style="max-width: 800px;">
+    <el-card id="user-review" style="max-width: 400px;">
         <template #header>
             <el-container>
                 <el-aside>
@@ -60,21 +60,25 @@ onMounted(() => {
                         {{ movie.title }}
                     </el-header>
                     <el-main>
-                        {{ movie.date }} {{ movie.region }}
+                        <p>{{ movie.date }} / {{ movie.location }}</p>
+                        <el-row justify="space-around">
+                            <el-col :span="8">
+                                Critic Rating
+                                <el-statistic :value="movie.criticRating" suffix="/10" />
+                            </el-col>
+                            <el-col :span="8">
+                                User Rating
+                                <el-statistic :value="movie.userRating" suffix="/10" />
+                            </el-col>
+                        </el-row>
                     </el-main>
-                    <el-footer>
-                        <el-statistic class="movie-critic-rating" :value="movie.criticRating" suffix="/10" title="Critic Rating" />
-                        <el-statistic class="movie-user-rating" :value="movie.userRating" suffix="/10" title="User Rating" />
-                    </el-footer>
                 </el-container>
             </el-container>
         </template>
-        <el-row>
+        <p>
             <el-rate v-model="review.rating" :max="10" disabled/> {{ review.date }}
-        </el-row>
-        <el-row>
-            {{ review.content }}
-        </el-row>
+        </p>
+        <p>{{ review.content }}</p>
     </el-card>
 </template>
 

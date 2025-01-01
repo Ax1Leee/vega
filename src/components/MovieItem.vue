@@ -47,7 +47,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <el-card id="movie-item" style="max-width: 400px;">
+    <el-card id="movie-item" style="max-width: 400px;" shadow="hover">
         <el-container>
             <el-aside>
                 <el-image :src="movie.cover" fit="cover" />
@@ -57,12 +57,18 @@ onMounted(() => {
                     {{ movie.title }}
                 </el-header>
                 <el-main>
-                    {{ movie.date }} {{ movie.region }}
+                    <p>{{ movie.date }} / {{ movie.location }}</p>
+                    <el-row justify="space-around">
+                        <el-col :span="8">
+                            Critic Rating
+                            <el-statistic :value="movie.criticRating" suffix="/10" />
+                        </el-col>
+                        <el-col :span="8">
+                            User Rating
+                            <el-statistic :value="movie.userRating" suffix="/10" />
+                        </el-col>
+                    </el-row>
                 </el-main>
-                <el-footer>
-                    <el-statistic class="movie-critic-rating" :value="movie.criticRating" suffix="/10" title="Critic Rating" />
-                    <el-statistic class="movie-user-rating" :value="movie.userRating" suffix="/10" title="User Rating" />
-                </el-footer>
             </el-container>
         </el-container>
     </el-card>
