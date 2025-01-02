@@ -20,7 +20,7 @@ const fetching = ref(true);
 // Methods
 const fetchData = async () => {
     try {
-        const response = await service.get('/movie/review', {
+        const response = await service.get('/review/movie', {
             params: {
                 reviewId: props.reviewId
             }

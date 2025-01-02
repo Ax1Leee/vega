@@ -69,7 +69,7 @@ const fetchReviewData = async () => {
     } catch (error) {
         console.log(error);
     }
-}
+};
 const loadReviews = async () => {
     try {
         loading.value = true;
@@ -96,10 +96,10 @@ const loadReviews = async () => {
     } finally {
         loading.value = false;
     }
-}
-const submitReviewForm = async () => {
+};
+const submitForm = async () => {
     try {
-        const response = await service.post('/user/review', reviewFormData);
+        const response = await service.post('/movie/review', reviewFormData);
         if (response['code'] === 200) {
             review.value = response.data['review'];
         } else {
@@ -112,10 +112,11 @@ const submitReviewForm = async () => {
     } catch (error) {
         console.log(error);
     }
-}
-function resetReviewForm() {
-    // TODO
-}
+};
+const resetForm = () => {
+    reviewFormData.rating = review.value.rating;
+    reviewFormData.content = review.value.content;
+};
 
 // Mounted
 onMounted(() => {
@@ -125,7 +126,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div id="movie-view">
+    <main>
         <el-descriptions :column="4" direction="vertical" title="Movie Info" v-loading="fetching">
             <el-descriptions-item label="Cover" :rowspan="4" :span="2">
                 <el-image :src="movie.cover" fit="cover" />
@@ -144,15 +145,15 @@ onMounted(() => {
             <el-descriptions-item label="Rating" :span="4">
                 <el-row justify="space-around">
                     <el-col :span="6">
-                        Critic Rating
+                        <el-text type="info">Critic Rating</el-text>
                         <el-statistic :value="movie.criticRating" suffix="/10" />
                     </el-col>
                     <el-col :span="6">
-                        User Rating
+                        <el-text type="info">User Rating</el-text>
                         <el-statistic :value="movie.userRating" suffix="/10" />
                     </el-col>
                     <el-col :span="6">
-                        Your Review
+                        <el-text type="info">Your Review</el-text>
                         <el-empty v-if="review === null" description="Sign In" />
                         <el-button v-else type="primary" @click="reviewDialogVisible = true">View Your Review</el-button>
                     </el-col>
@@ -164,21 +165,21 @@ onMounted(() => {
             <movie-review v-for="reviewId in reviews" :key="reviewId" :review-id="reviewId" />
         </ul>
         <p v-if="loading">Loading...</p>
-        <el-dialog v-model="reviewDialogVisible" title="Your Review" center>
-            <el-form :model="reviewFormData" label-width="auto" ref="reviewFormRef">
-                <el-form-item label="Rating">
-                    <el-rate v-model="reviewFormData.rating" />
-                </el-form-item>
-                <el-form-item label="Content">
-                    <el-input v-model="reviewFormData.content" type="textarea" rows="4" maxlength="200" show-word-limit />
-                </el-form-item>
-            </el-form>
-            <template #footer>
-                <el-button @click="resetReviewForm">Reset</el-button>
-                <el-button type="primary" @click="submitReviewForm">Review</el-button>
-            </template>
-        </el-dialog>
-    </div>
+    </main>
+    <el-dialog v-model="reviewDialogVisible" title="Your Review" center>
+        <el-form :model="reviewFormData" label-width="auto" ref="reviewFormRef">
+            <el-form-item label="Rating">
+                <el-rate v-model="reviewFormData.rating" />
+            </el-form-item>
+            <el-form-item label="Content">
+                <el-input v-model="reviewFormData.content" type="textarea" rows="4" maxlength="200" show-word-limit />
+            </el-form-item>
+        </el-form>
+        <template #footer>
+            <el-button @click="resetForm">Reset</el-button>
+            <el-button type="primary" @click="submitForm">Review</el-button>
+        </template>
+    </el-dialog>
 </template>
 
 <style scoped>

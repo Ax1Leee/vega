@@ -20,7 +20,7 @@ const fetching = ref(true);
 // Methods
 const fetchData = async () => {
     try {
-        const response = await service.get('user/review', {
+        const response = await service.get('/review/user', {
             params: {
                 reviewId: props.reviewId
             }
@@ -63,12 +63,10 @@ onMounted(() => {
                         <p>{{ movie.date }} / {{ movie.location }}</p>
                         <el-row justify="space-around">
                             <el-col :span="8">
-                                Critic Rating
-                                <el-statistic :value="movie.criticRating" suffix="/10" />
+                                <el-statistic title="Critic Rating" :value="movie.criticRating" suffix="/10" />
                             </el-col>
                             <el-col :span="8">
-                                User Rating
-                                <el-statistic :value="movie.userRating" suffix="/10" />
+                                <el-statistic title="User Rating" :value="movie.userRating" suffix="/10" />
                             </el-col>
                         </el-row>
                     </el-main>

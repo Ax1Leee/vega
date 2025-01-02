@@ -11,6 +11,7 @@ const total = ref(null);
 const fetching = ref(true);
 const count = ref(0);
 const loading = ref(false);
+const action = process.env.VUE_APP_BACKEND_API + '/user/avatar';
 const uploading = ref(false);
 
 // Computed
@@ -69,7 +70,7 @@ const loadReviews = async () => {
     } finally {
         loading.value = false;
     }
-}
+};
 const beforeUpload = (file) => {
     const isImage = file.type.startsWith('image/');
     if (!isImage) {
@@ -82,7 +83,7 @@ const beforeUpload = (file) => {
     }
     uploading.value = true;
     return true;
-}
+};
 const handleSuccess = (response) => {
     response = response.data;
     if (response['code'] === 200) {
@@ -95,12 +96,12 @@ const handleSuccess = (response) => {
             type: "error"
         });
     }
-}
+};
 const handleError = (error) => {
     uploading.value = false;
     ElMessage.error('Failed to upload!');
     console.log(error);
-}
+};
 
 // Mounted
 onMounted(() => {
@@ -109,17 +110,18 @@ onMounted(() => {
 </script>
 
 <template>
-    <div id="user-view">
-        <el-menu default-active="/user" mode="horizontal" router>
-            <el-menu-item index="/">Home</el-menu-item>
-            <el-menu-item index="/recommendation">Recommendation</el-menu-item>
-            <el-menu-item index="/user">User</el-menu-item>
-        </el-menu>
+    <el-menu default-active="/user" mode="horizontal" router>
+        <el-menu-item index="/">Home</el-menu-item>
+        <el-menu-item index="/recommendation">Recommendation</el-menu-item>
+        <el-menu-item index="/user">User</el-menu-item>
+    </el-menu>
+    <el-empty v-if="user === null" description="Sign In" />
+    <main v-else>
         <el-descriptions title="User Info" direction="vertical" :column="4" v-loading="fetching">
             <el-descriptions-item label="Avatar" :rowspan="2" :span="2">
                 <el-avatar :src="user.avatar" shape="square" />
                 <el-upload
-                    action="https://jsonplaceholder.typicode.com/posts/"
+                    :action="action"
                     :show-file-list="false"
                     :before-upload="beforeUpload"
                     :on-success="handleSuccess"
@@ -143,7 +145,7 @@ onMounted(() => {
             <user-review v-for="reviewId in reviews" :key="reviewId" :review-id="reviewId" />
         </ul>
         <p v-if="loading">Loading...</p>
-    </div>
+    </main>
 </template>
 
 <style scoped>

@@ -3,8 +3,8 @@ import {getToken} from "@/utils/auth";
 
 // 创建 axios 实例
 const service = axios.create({
-    baseURL: 'https://api.example.com', // 你的 API 基础 URL
-    timeout: 5000, // 请求超时时间
+    baseURL: process.env.VUE_APP_BASE_URL, // 你的 API 基础 URL
+    timeout: 5000 // 请求超时时间
 });
 
 // 请求拦截器

@@ -16,20 +16,21 @@ const props = defineProps({
 });
 
 // Data
-const movies = ref(null);
+const titles = ref(null);
 const fetching = ref(true);
 
 // Methods
 const fetchData = async () => {
     try {
-        const response = await service.get('/movie/list/titles', {
+        const response = await service.get('/movie/list', {
             params: {
                 genre: props.genre,
-                category: props.category
+                category: props.category,
+                field: 'title'
             }
         });
         if (response['code'] === 200) {
-            movies.value = response.data['movies'];
+            titles.value = response.data['titles'];
         } else {
             ElNotification({
                 title: "Error",
@@ -56,7 +57,7 @@ onMounted(() => {
             <p>{{ genre }}</p>
             <p>{{ category }}</p>
         </template>
-        <p v-for="(title, index) in movies" :key="index">
+        <p v-for="(title, index) in titles" :key="index">
             {{ index + 1 }} {{ title }}
         </p>
     </el-card>
